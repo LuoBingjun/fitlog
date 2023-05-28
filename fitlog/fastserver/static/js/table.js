@@ -16,6 +16,34 @@ function add_operate_checkbox(columns)
 }
 
 window.operateEvents = {
+    'click .tensorboard': function (e, value, row, index) {
+        var finish = false;
+        if(row['state']==='finish'){
+            finish = true;
+        }
+        $.ajax({
+              url: '/chart/have_trends',
+              type: 'POST',
+              dataType: 'json',
+              contentType: 'application/json;charset=UTF-8',
+              data: JSON.stringify({
+                   uuid: window.server_uuid,
+                   log_dir: row['id']
+              }),
+              success: function(value){
+                  var status = value['status'];
+                  if(status==='success' && value['have_trends']){
+                      openPostWindow(`http://${window.location.hostname}${value['url']}`, {'log_dir': row['id'], 'finish': finish,
+                          'uuid':window.server_uuid});
+                  } else{
+                      bootbox.alert(value['msg']);
+                  }
+              },
+              error: function(error){
+                  bootbox.alert("Some error happens. You may disconnect from the server.");
+              }
+      })
+  },
     'click .reset': function (e, value, row, index) {
         if(row['meta-fit_id']===undefined){
             bootbox.alert("This version of code is not managed by fitlog, cannot reset.")
@@ -137,15 +165,18 @@ function openPostWindow(url, params)
 function operateFormatter(value, row, index) {
     return [
        '<div style="display:inline-block; float: none; width: 70px">',
+       '<a class="tensorboard" href="javascript:void(0)" title="TensorBoard">',
+       '<i class="glyphicon glyphicon-link" style="padding:0px 2px 0px 1px"></i>',
+       '</a>',
       '<a class="reset" href="javascript:void(0)" title="Reset">',
       '<i class="glyphicon glyphicon-share-alt" style="padding:0px 2px 0px 1px"></i>',
       '</a>',
       '<a class="trend" href="javascript:void(0)" title="Trend">',
       '<i class="glyphicon glyphicon-tasks" style="padding:0px 1px 0px 1px"></i>',
       '</a>',
-      '<a class="file" href="javascript:void(0)" title="File">',
-      '<i class="glyphicon glyphicon-list-alt" style="padding:0px 1px 0px 1px"></i>',
-      '</a>',
+    //   '<a class="file" href="javascript:void(0)" title="File">',
+    //   '<i class="glyphicon glyphicon-list-alt" style="padding:0px 1px 0px 1px"></i>',
+    //   '</a>',
         '<a class="folder" href="javascript:void(0)" title="Folder">',
       '<i class="glyphicon glyphicon-folder-open" style="padding:0px 1px 0px 2px"></i>',
       '</a>',

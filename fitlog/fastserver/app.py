@@ -102,10 +102,14 @@ def start_app(log_dir, log_config_name, start_port, standby_hours, ip='0.0.0.0',
         print(_colored_string("You specify token:{}, remember to add this token when access your table.".format(all_data['token']),
                               color='red'))
     all_data['port'] = port
+    tensorboard_port = get_usage_port(start_port=port+1)
+    all_data['tensorboard_port'] = tensorboard_port
+    cmd = os.popen("tensorboard --logdir {} --port {} --path_prefix='/tensorboard'".format(log_dir, tensorboard_port))
     app.run(host=ip, port=port, debug=False, threaded=True)
 
     # TODO 输出访问的ip地址
     print("Shutting down server...")
+    cmd.close()
     save_all_data(all_data,  all_data['root_log_dir'], all_data['log_config_name'])
     handler_watcher.stop()
     server_watcher.stop()

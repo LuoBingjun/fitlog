@@ -88,7 +88,7 @@ def have_trends():
         log_dir = request.json['log_dir']
         save_log_dir = os.path.join(all_data['root_log_dir'], log_dir)
         if is_log_dir_has_step(save_log_dir):
-            return jsonify(status='success', have_trends=True)
+            return jsonify(status='success', have_trends=True, url=f":{all_data['tensorboard_port']}/tensorboard/#scalars&regexInput={log_dir}")
         else:
             return jsonify(status='success', have_trends=False, msg='There is no trend data for this log.')
     except Exception:

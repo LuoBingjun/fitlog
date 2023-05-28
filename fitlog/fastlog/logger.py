@@ -19,6 +19,8 @@ import warnings
 import numpy as np
 import numbers
 
+from torch.utils.tensorboard import SummaryWriter
+
 class FitlogConfig:
     """
     用于add_hyper函数的基类。
@@ -103,6 +105,7 @@ class Logger:
         
         self._log_dir = None  # 这是哪个大的log文件, 比如logs/
         self._save_log_dir = None  # 存在哪个文件内的，比如log_20191020_193021/。如果
+        self._writer = None
     
     @_check_log_dir
     def get_log_dir(self, absolute=False):
@@ -315,6 +318,8 @@ class Logger:
                 logger.addHandler(handler)
                 setattr(self, name + '_logger', logger)
             self.__add_meta()
+
+            self._writer = SummaryWriter(log_dir=self._save_log_dir)
     
     @_check_debug
     @_check_log_dir
@@ -443,6 +448,9 @@ class Logger:
         _str = json.dumps(_dict)
         _str = 'Step:{}\t'.format(step) + _str
         self._write_to_logger(_str, 'metric_logger')
+
+        if name is not None:
+            self._writer.add_scalar(name, value, step)
     
     @_check_debug
     @_check_log_dir
@@ -466,6 +474,9 @@ class Logger:
         _str = json.dumps(_dict)
         _str = 'Step:{}\t'.format(step) + _str
         self._write_to_logger(_str, 'loss_logger')  # {'loss': {}, 'step':xx, 'epoch':xx}
+
+        if name is not None:
+            self._writer.add_scalar(name, value, step)
     
     @_check_debug
     @_check_log_dir
