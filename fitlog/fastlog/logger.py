@@ -308,7 +308,7 @@ class Logger:
             # prepare logger
             formatter = logging.Formatter('%(message)s')  # 只保存记录的时间与记录的内容
             for name in ['meta', 'hyper', 'metric', 'other', 'loss', 'progress', 'best_metric', 'file']:
-                logger_name = 'fitlog_{}'.format(name)
+                logger_name = 'fitlog_{}_{}'.format(name, now)
                 logger = logging.getLogger(logger_name)
                 handler = logging.FileHandler(os.path.join(self._save_log_dir, '{}.log'.format(name)), encoding='utf-8')
                 handler.setFormatter(formatter)
