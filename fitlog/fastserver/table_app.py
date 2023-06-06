@@ -128,12 +128,20 @@ def table_edit():
         id = request.json['id']
         field = request.json['field']
         new_field_value = request.json['new_field_value']
-        if id in all_data['extra_data']:
-            all_data['extra_data'][id][field] = new_field_value
+        if field in ['meta-git_msg']:
+            fit_id = all_data['data'][id]['meta-fit_id']
+            ids = [id for id in all_data['data'] if all_data['data'][id]['meta-fit_id']==fit_id]
         else:
-            all_data['extra_data'][id] = {field:new_field_value}
-        if id in all_data['data'] and field in all_data['data'][id]:
-            all_data['data'][id][field] = new_field_value
+            ids = [id]
+        for id in ids:
+            if id in all_data['extra_data']:
+                all_data['extra_data'][id][field] = new_field_value
+            else:
+                all_data['extra_data'][id] = {field:new_field_value}
+            if id in all_data['data'] and field in all_data['data'][id]:
+                all_data['data'][id][field] = new_field_value
+
+        save_all_data(all_data,  all_data['root_log_dir'], all_data['log_config_name'])
 
         return jsonify(status='success', msg='')
     except Exception as e:
